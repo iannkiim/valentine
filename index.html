@@ -9,7 +9,7 @@
     body {
       margin: 0;
       height: 100vh;
-      background: linear-gradient(135deg, #ffd6e0, #ff8fab);
+      background: radial-gradient(circle, #ffd6e0, #ff8fab);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,7 +22,7 @@
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-      width: min(500px, 90vw);
+      width: min(520px, 92vw);
       text-align: center;
     }
 
@@ -32,19 +32,39 @@
       font-size: 2.6rem;
     }
 
+    p {
+      color: #5a1a2c;
+      margin-bottom: 20px;
+    }
+
+    .buttons {
+      position: relative;
+      height: 180px;
+      margin-top: 10px;
+    }
+
     button {
       font-size: 1.1rem;
       padding: 14px 28px;
       border-radius: 14px;
       border: none;
       cursor: pointer;
-      background: #ff3366;
-      color: white;
       transition: transform 0.2s ease;
+      user-select: none;
     }
 
-    button:hover {
-      transform: scale(1.05);
+    #yes {
+      background: #ff3366;
+      color: white;
+    }
+
+    #no {
+      background: #444;
+      color: white;
+      position: absolute;
+      left: 55%;
+      top: 80px;
+      transform: translateX(-50%);
     }
 
     .inputs {
@@ -52,6 +72,13 @@
       flex-direction: column;
       gap: 14px;
       margin: 20px 0;
+      text-align: left;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
     }
 
     input {
@@ -59,6 +86,7 @@
       font-size: 1rem;
       border-radius: 10px;
       border: 1px solid #ccc;
+      width: 100%;
     }
   </style>
 </head>
@@ -66,29 +94,65 @@
 
 <div class="card" id="screen">
   <h1>Will you be my Valentine? 💖</h1>
-  <button onclick="yes()">YES 💕</button>
+  <div class="buttons">
+    <button id="yes">YES 💕</button>
+    <button id="no">NO 😒</button>
+  </div>
 </div>
 
 <script>
   const screen = document.getElementById("screen");
+  const yesBtn = document.getElementById("yes");
+  const noBtn = document.getElementById("no");
 
-  function yes() {
+  let yesScale = 1;
+
+  function moveNoButton() {
+    const maxX = window.innerWidth - noBtn.offsetWidth;
+    const maxY = window.innerHeight - noBtn.offsetHeight;
+
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+
+    yesScale += 0.08;
+    yesBtn.style.transform = `scale(${yesScale})`;
+  }
+
+  // Desktop
+  noBtn.addEventListener("mouseenter", moveNoButton);
+
+  // Mobile
+  noBtn.addEventListener("touchstart", moveNoButton);
+
+  yesBtn.addEventListener("click", () => {
     screen.innerHTML = `
       <h1>LET'S GOOOO 💘🥰</h1>
-      <p>You have unlocked a date.</p>
+      <p>I was worried you would say no!.</p>
       <button onclick="redeem()">Redeem 💌</button>
     `;
-  }
+  });
 
   function redeem() {
     screen.innerHTML = `
-      <h1>Redeem Your Date With GOAT 🎁</h1>
-      <p>Please complete the totally legit process below.</p>
+      <h1>Redeem Your Prize 🎁</h1>
+      <p>Please complete the totally official process.</p>
 
       <div class="inputs">
-        <input type="credit card number" />
-        <input type="SSN" />
-        <input type="Date of Birth" />
+        <div>
+          <label>Credit Card Number</label>
+          <input type="text" />
+        </div>
+        <div>
+          <label>CVV</label>
+          <input type="text" />
+        </div>
+        <div>
+          <label>Frequently used PIN</label>
+          <input type="text" />
+        </div>
       </div>
 
       <button onclick="done()">Submit</button>
@@ -98,9 +162,8 @@
   function done() {
     screen.innerHTML = `
       <h1>✅ Redeemed</h1>
-      <p>Thank you for your cooperation.</p>
-      <p>This information has been sent overseas.</p>
-      <p>💘</p>
+      <p>Your submission has been sent abroad.</p>
+      <p>💖</p>
     `;
   }
 </script>
