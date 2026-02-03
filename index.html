@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Will You Be My Valentine?</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle, #ffd6e0, #ff8fab);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: #a10035;
+      margin-bottom: 40px;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    button {
+      font-size: 1.3rem;
+      padding: 15px 35px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    #yes {
+      background: #ff3366;
+      color: white;
+      margin-right: 30px;
+    }
+
+    #no {
+      background: #444;
+      color: white;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Will you be my Valentine? ❤️</h1>
+  <button id="yes">YES 💖</button>
+  <button id="no">NO 💀</button>
+</div>
+
+<script>
+  const noBtn = document.getElementById("no");
+  const yesBtn = document.getElementById("yes");
+
+  let yesScale = 1;
+
+  // Initial position
+  noBtn.style.left = "55%";
+  noBtn.style.top = "60%";
+
+  document.addEventListener("mousemove", (e) => {
+    const noRect = noBtn.getBoundingClientRect();
+
+    const distX = e.clientX - (noRect.left + noRect.width / 2);
+    const distY = e.clientY - (noRect.top + noRect.height / 2);
+    const distance = Math.sqrt(distX ** 2 + distY ** 2);
+
+    if (distance < 120) {
+      const maxX = window.innerWidth - noRect.width;
+      const maxY = window.innerHeight - noRect.height;
+
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+
+      yesScale += 0.06;
+      yesBtn.style.transform = `scale(${yesScale})`;
+    }
+  });
+
+  // Mobile support
+  noBtn.addEventListener("touchstart", () => {
+    const maxX = window.innerWidth - noBtn.offsetWidth;
+    const maxY = window.innerHeight - noBtn.offsetHeight;
+
+    noBtn.style.left = Math.random() * maxX + "px";
+    noBtn.style.top = Math.random() * maxY + "px";
+
+    yesScale += 0.1;
+    yesBtn.style.transform = `scale(${yesScale})`;
+  });
+
+  yesBtn.addEventListener("click", () => {
+    document.body.innerHTML = `
+      <div style="text-align:center;">
+        <h1 style="font-size:3.5rem;color:#a10035;">
+          LET'S GOOOO 💘🥰
+        </h1>
+        <p style="font-size:1.5rem;">
+          You chose wisely.
+        </p>
+      </div>
+    `;
+  });
+</script>
+
+</body>
+</html>
