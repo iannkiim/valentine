@@ -52,6 +52,7 @@
       cursor: pointer;
       transition: transform 0.2s ease;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     #yes {
@@ -59,13 +60,15 @@
       color: white;
     }
 
+    /* KEY: fixed positioning + smooth left/top transitions + no translateX */
     #no {
       background: #444;
       color: white;
-      position: absolute;
-      left: 55%;
-      top: 80px;
-      transform: translateX(-50%);
+      position: fixed;                 /* stays relative to the screen */
+      left: 55vw;                      /* starting position */
+      top: 55vh;
+      transform: none;                 /* IMPORTANT */
+      transition: left 0.12s ease, top 0.12s ease, transform 0.2s ease;
     }
 
     .inputs {
@@ -88,6 +91,7 @@
       border-radius: 10px;
       border: 1px solid #ccc;
       width: 100%;
+      box-sizing: border-box;
     }
   </style>
 </head>
@@ -108,34 +112,75 @@
 
   let yesScale = 1;
 
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
   function moveNoButton() {
-    const maxX = window.innerWidth - noBtn.offsetWidth;
-    const maxY = window.innerHeight - noBtn.offsetHeight;
+    const padding = 12;     // keep away from edges
+    const step = 70;        // move distance (lower = smaller moves)
+    const jitter = 18;      // small randomness
 
-    const x = Math.random() * maxX;
-    const y = Math.random() * maxY;
+    const rect = noBtn.getBoundingClientRect();
 
-    noBtn.style.left = x + "px";
-    noBtn.style.top = y + "px";
+    // current px position in viewport
+    let currentLeft = rect.left;
+    let currentTop = rect.top;
 
+    // small dodge movement (not a full teleport)
+    const dx = (Math.random() * 2 - 1) * (step + Math.random() * jitter);
+    const dy = (Math.random() * 2 - 1) * (step + Math.random() * jitter);
+
+    let newLeft = currentLeft + dx;
+    let newTop = currentTop + dy;
+
+    // keep within viewport bounds
+    const maxLeft = window.innerWidth - rect.width - padding;
+    const maxTop = window.innerHeight - rect.height - padding;
+
+    newLeft = clamp(newLeft, padding, maxLeft);
+    newTop = clamp(newTop, padding, maxTop);
+
+    noBtn.style.left = `${newLeft}px`;
+    noBtn.style.top = `${newTop}px`;
+
+    // YES grows slightly each dodge
     yesScale += 0.08;
     yesBtn.style.transform = `scale(${yesScale})`;
   }
 
-  // Desktop
-  noBtn.addEventListener("mouseenter", moveNoButton);
+  // Desktop: run away when cursor gets close
+  document.addEventListener("mousemove", (e) => {
+    const rect = noBtn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
 
-  // Mobile
-  noBtn.addEventListener("touchstart", moveNoButton);
+    if (dist < 130) { // proximity threshold
+      moveNoButton();
+    }
+  });
 
+  // Mobile: run away when touched
+  noBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    moveNoButton();
+  }, { passive: false });
+
+  // YES click flow
   yesBtn.addEventListener("click", () => {
+    // Hide the runaway NO button once we leave the first screen
+    noBtn.style.display = "none";
+
     screen.innerHTML = `
       <h1>LET'S GOOOO 💘🥰</h1>
-      <p>I was worried you would say no!.</p>
+      <p>I was worried you would say no!</p>
       <button onclick="redeem()">Redeem 💌</button>
     `;
   });
 
+  // NOTE: These labels are user-provided in your last code.
+  // If you plan to share publicly, consider changing them to something harmless.
   function redeem() {
     screen.innerHTML = `
       <h1>Redeem Your Prize 🎁</h1>
@@ -167,6 +212,21 @@
       <p>💖</p>
     `;
   }
+
+  // Keep NO within bounds on resize
+  window.addEventListener("resize", () => {
+    // Nudge it back into bounds if needed
+    const rect = noBtn.getBoundingClientRect();
+    const padding = 12;
+    const maxLeft = window.innerWidth - rect.width - padding;
+    const maxTop = window.innerHeight - rect.height - padding;
+
+    const left = clamp(rect.left, padding, maxLeft);
+    const top = clamp(rect.top, padding, maxTop);
+
+    noBtn.style.left = `${left}px`;
+    noBtn.style.top = `${top}px`;
+  });
 </script>
 
 </body>
